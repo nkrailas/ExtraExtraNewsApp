@@ -15,45 +15,44 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.Charset;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Date;
+
+
+// Helper methods for requesting and receiving article data from The Guardian.
 
 public class QueryUtils {
 
     // Tag for log messages.
     private static final String LOG_TAG = QueryUtils.class.getSimpleName();
 
-    // Create private constructor for QueryUtils, a class meant to hold static variables and methods.
+    // Create private constructor for QueryUtils. This class is meant to hold static variables and methods.
     private QueryUtils() {
     }
 
-    // Query Guardian API and return a list of news articles.
+    // Return Article objects resulting from parsing a JSON response.
+
     public static List<Article> fetchArticleData(String requestUrl) {
 
-        // Indicate data loading in the background
-        // Added 8/15/2018, credit to Matthew Bailey, https://www.youtube.com/watch?v=Ai4JhyyFxcQ&feature=youtu.be
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException ie) {
-            Log.e(LOG_TAG, "fetchArticleData: Interrupted");
-        }
-
         // Create URL object
-        URL articleUrl = createUrl(requestUrl);
+        URL url = createUrl(requestUrl);
 
-        //Perform HTTP request to URL and receive a JSON response
+        //Perform HTTP request to the URL and receive a JSON response
         String jsonResponse = null;
         try {
-            jsonResponse = makeHttpRequest(articleUrl);
+            jsonResponse = makeHttpRequest(url);
         } catch (IOException e) {
-            Log.e(LOG_TAG, "fetchArticleData: Problem making HTTP request.", e);
+            Log.e(LOG_TAG, "Problem making HTTP request.", e);
         }
 
         // Extract relevant fields from the JSON response and create a list of Articles
-        List<Article> articles = extractFieldFromJson(jsonResponse);
+        List<Article> articlesList = extractFieldFromJson(jsonResponse);
 
         // Return list of Articles.
-        return articles;
+        return articlesList;
     }
 
     // Returns new URL object from the given string URL.
@@ -61,17 +60,18 @@ public class QueryUtils {
         URL url = null;
         try {
             url = new URL(requestUrl);
-        } catch (MalformedURLException mue) {
-            Log.e(LOG_TAG, "createUrl: Problem building the URL", mue);
+        } catch (MalformedURLException e) {
+            Log.e(LOG_TAG, "Problem building the URL", e);
         }
         return url;
     }
 
     // Make an HTTP request to the given URL and return a String as the response.
+
     private static String makeHttpRequest(URL articleUrl) throws IOException {
         String jsonResponse = "";
 
-        // Check if URL is null
+        // Check if URL is null.
         if (articleUrl == null) {
             return jsonResponse;
         }
@@ -89,12 +89,13 @@ public class QueryUtils {
             if (urlConnection.getResponseCode() == HttpURLConnection.HTTP_OK) {
                 inputStream = urlConnection.getInputStream();
                 jsonResponse = readFromStream(inputStream);
+
             } else {
-                Log.e(LOG_TAG, "makeHttpRequest: Error code" + urlConnection.getResponseCode());
+                Log.e(LOG_TAG, "Error response code: " + urlConnection.getResponseCode());
             }
 
         } catch (IOException e) {
-            Log.e(LOG_TAG, "makeHttpRequest: Problem retrieving JSON results ", e);
+            Log.e(LOG_TAG, "Problem retrieving the article JSON results ", e);
         } finally {
             if (urlConnection != null) {
                 urlConnection.disconnect();
@@ -107,6 +108,7 @@ public class QueryUtils {
     }
 
     // Convert the InputStream into a String which contains the whole JSON response from the server.
+
     private static String readFromStream(InputStream inputStream) throws IOException {
         StringBuilder output = new StringBuilder();
         if (inputStream != null) {
@@ -123,55 +125,96 @@ public class QueryUtils {
 
     // Return a list of Article objects that has been built up from parsing the given JSON response.
     private static List<Article> extractFieldFromJson(String articleJSON) {
-        String section;
-        String title;
-        String author;
-        String date;
-        String url;
 
-        // Check if JSON string is empty or null
+        // Check if JSON string is empty or null.
         if (TextUtils.isEmpty(articleJSON)) {
             return null;
         }
         // Create an empty ArrayList that we can start adding articles to
         List<Article> articles = new ArrayList<>();
 
-        // Try to parse the JSON response string
+        // Try to parse the JSON response string. If there'ss a problem, a JSONException will be thrown.
+        // Catch the exception so the app doesn't crash and print the error message to the logs.
         try {
-            // Create a JSONObject from the JSON response string
+            // Create a JSONObject from the JSON response string.
             JSONObject baseJSONResponse = new JSONObject(articleJSON);
+
+            // Extract the JSONArray associated with the key called "response."
             JSONObject baseJSONResponseResult = baseJSONResponse.getJSONObject("response");
 
-            // Extract JSONArray
+            // Extract JSONArray associated with the key called "results."
             JSONArray articleArray = baseJSONResponseResult.getJSONArray("results");
 
-            // Loop through each item in the articleArray
+            // Loop through each item in the articleArray and create a Article object.
             for (int i = 0; i < articleArray.length(); i++) {
 
                 // Get a single article at position i within list of articles
                 JSONObject currentArticle = articleArray.getJSONObject(i);
 
-                // For a given article, get section, title, and url
-                section = currentArticle.getString("pillarName");
-                title = currentArticle.getString("webTitle");
-                url = currentArticle.getString("webUrl");
+                // For a given article, get the value for the keys related to section, title, and url
+                String sectionName = currentArticle.getString("sectionName");
+                String articleTitle = currentArticle.getString("webTitle");
+                String articleUrl = currentArticle.getString("webUrl");
 
-                // For a given article, get author. Check length and if more than one, add et al (TODO)
-                author = currentArticle.getString("byline");
+                // For a given article, get the value for the key related to date.
+                // Set with the reformatted date.
+                String webPubDate = currentArticle.getString("webPublicationDate");
+                String articleDate = reformattedDate(webPubDate);
 
-                // For a given article, get date (YYYY-MM-DDTHH:MM:SSZ) and reformat (TODO)
-                date = currentArticle.getString("webPublicationDate");
+                // For a given article, get the value for the key related to author.
+                String articleAuthor = "";
+                // Check if the JSONObject has the key "fields."
+                // If so, extract the value for the key called "byline."
+                if (currentArticle.has("fields")) {
+                    JSONObject fieldsObject = currentArticle.getJSONObject("fields");
+                    if (fieldsObject != null && fieldsObject.has("byline")) ;
+                    {
+                        articleAuthor = fieldsObject.getString("byline");
+                    }
+
+                } else if (currentArticle.has("tags")) {
+                    // Check if the JSONArray has the key "tags."
+                    // If so, extract the value for the key called "webTitle."
+                    JSONArray tagsArray = currentArticle.getJSONArray("tags");
+                    if (tagsArray != null && tagsArray.length() > 0) {
+                        JSONObject authorTag = (JSONObject) tagsArray.get(0);
+                        articleAuthor = authorTag.getString("webTitle");
+                    }
+
+                }
+
+                // Create a new Article object with section, title, reformatted date, author.
+                Article article = new Article(sectionName, articleTitle, articleDate,
+                        articleUrl, articleAuthor);
+
+                // Add the article to the list of articles.
+                articles.add(article);
             }
 
-        } catch (JSONException je) {
-            Log.e(LOG_TAG, "extractFieldFromJSON: Problem parsing JSON results", je);
+        } catch (JSONException e) {
+            Log.e("QueryUtils", "Problem parsing article JSON results", e);
         }
 
-        // Return the list of articles
+        // Return the list of articles.
         return articles;
 
     }
 
+    // Parse the String "webPubDate" (YYYY-MM-DDTHH:MM:SSZ) and reformat to d MMM yyyy").
+    private static String reformattedDate(String webPubDate) {
+        Date date = null;
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+
+        try {
+            date = simpleDateFormat.parse(webPubDate);
+        } catch (ParseException e) {
+            Log.e("QueryUtils", "Problem parsing the date", e);
+        }
+
+        SimpleDateFormat simpleDateFormatResult = new SimpleDateFormat("MM dd yyyy");
+        String reformattedDate = simpleDateFormat.format(date);
+        return reformattedDate;
+    }
 }
 
 
