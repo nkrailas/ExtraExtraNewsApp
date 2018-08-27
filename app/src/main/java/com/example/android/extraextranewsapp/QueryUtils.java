@@ -200,7 +200,9 @@ public class QueryUtils {
 
     }
 
-    // Parse the String "webPubDate" (YYYY-MM-DDTHH:MM:SSZ) and reformat to d MMM yyyy").
+    // Parse the webPubDate "YYYY-MM-DDTHH:MM:SSZ" and reformat to "MM dd yyyy").
+    // (Credit: Java SimpleDateFormat on 8/27/2018, http://tutorials.jenkov.com/java-internationalization/simpledateformat.html,
+    // which is a tutorial posted to Slack on 8/22/2018 by ABND Scholar Charles Rowland.)
     private static String reformattedDate(String webPubDate) {
         Date date = null;
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");

@@ -1,99 +1,101 @@
 package com.example.android.extraextranewsapp;
 
 import android.app.LoaderManager;
+import android.app.LoaderManager.LoaderCallbacks;
 import android.content.Context;
 import android.content.Intent;
+import android.content.Loader;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
+
+import java.util.ArrayList;
+import java.util.List;
 import android.view.View;
-import android.widget.Adapter;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import java.util.ArrayList;
-import java.util.List;
-
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements LoaderCallbacks<List<Article>> {
 
     private static final String LOG_TAG = MainActivity.class.getName();
+
     // Constant value for article loader ID.
-    private static final int ARTICLE_LOADER_ID = 1;
-    // URL for articles from the Guardian API
-    public String GUARDIAN_REQUEST_URL =
+    public static final int ARTICLE_LOADER_ID = 1;
+    // URL for article data from the Guardian API.
+    private static final String GUARDIAN_REQUEST_URL =
             "https://content.guardianapis.com/search?api-key=863cbb53-872a-4af3-9897-dadd1eb75a01&" +
                     "show-tags=article,contributor&show-fields=headline,byline&limit=15";
-    // Adapter for the list of articles
-    private ArticleAdapter aAdapter;
+    // Adapter for the list of articles.
+    private ArticleAdapter articleAdapter;
 
-    // TextView that is displayed when the list is empty
-    private TextView eEmptyStateTextView;
+    // TextView that is displayed when the list is empty.
+    private TextView emptyStateTextView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // Find a reference to the ListView in the layout
+        // Find a reference to the ListView in the layout.
         ListView articleListView = findViewById(R.id.article_list);
 
-        // Set empty state TextView onto the ListView
-        eEmptyStateTextView = findViewById(R.id.empty_view);
-        articleListView.setEmptyView(eEmptyStateTextView);
+        // Set an empty state TextView onto the ListView.
+        emptyStateTextView = findViewById(R.id.empty_view);
+        articleListView.setEmptyView(emptyStateTextView);
 
-        // Create a new adapter that takes an empty list of news articles as input
-        aAdapter = new ArticleAdapter(this, new ArrayList<Article>());
+        // Create a new adapter that takes an empty list of news articles as input.
+        articleAdapter = new ArticleAdapter(this, new ArrayList<Article>());
 
-        // Set the adapter on the ListView so the list can be populated in the UI
-        articleListView.setAdapter(aAdapter);
+        // Set the adapter on the ListView so the list can be populated in the UI.
+        articleListView.setAdapter(articleAdapter);
 
         // Set an item click listener on the ListView, which sends an intent to a web browser to
-        // open a website with more information about the selected news article
+        // open a website with more information about the selected article.
         articleListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
-                // Get the url from the current earthquake that was clicked on
-                Article currentArticle = aAdapter.getItem(position);
 
-                // Convert the String url into a URI object (to pass into the Intent constructor)
-                Uri articleUri = Uri.parse(currentArticle.getUrl());
+                // Get the url from the current article that was clicked on.
+                Article currentArticle = articleAdapter.getItem(position);
 
-                // Create a new intent that specifies an action to view the news article URI
+                // Convert the String url into a URI object (to pass into the Intent constructor).
+                Uri articleUri = Uri.parse(currentArticle.getArticleUrl());
+
+                // Create a new intent that specifies an action to view the article URI.
                 Intent websiteIntent = new Intent(Intent.ACTION_VIEW, articleUri);
 
-                // Send the intent to launch a new activity
+                // Send the intent to launch a new activity.
                 startActivity(websiteIntent);
             }
         });
 
-        // Get a reference to the Connectivity Manager to check state of network connectivity
+        // Get a reference to the Connectivity Manager to check state of network connectivity.
         ConnectivityManager connMgr = (ConnectivityManager)
                 getSystemService(Context.CONNECTIVITY_SERVICE);
 
-        // Get details on the currently active default area network
+        // Get details on the currently active default area network.
         NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
 
-        // If there is a network connection, fetch data
+        // If there is a network connection, fetch data.
         if (networkInfo != null && networkInfo.isConnected()) {
 
             // Get a reference to the LoaderManager, in order to interact with loaders.
             LoaderManager loaderManager = getLoaderManager();
 
             // Initialize the loader. Pass in the int ID constant defined above and pass in null for
-            // the bundle. Pass in this activity for the LoaderCallbacks parameter (which is valid
-            // because this activity implements the LoaderCallbacks interface).
+            // the bundle. Pass in this activity for the LoaderCallbacks parameter.
+
             loaderManager.initLoader(ARTICLE_LOADER_ID, null, this);
         } else {
-            // Otherwise, display error
-            // First, hide loading indicator so error message will be visible
+            // Otherwise, hide loading indicator and display error message.
             View loadingIndicator = findViewById(R.id.loading_indicator);
             loadingIndicator.setVisibility(View.GONE);
         }
-        // Update empty state text to display "No Internet connection. Please check your network."
-        eEmptyStateTextView.setText(R.string.no_internet_connection);
+        // Update empty state TextView to display message.
+        emptyStateTextView.setText(R.string.no_internet_connection);
     }
 
     @Override
@@ -108,23 +110,23 @@ public class MainActivity extends AppCompatActivity {
         View loadingIndicator = findViewById(R.id.loading_indicator);
         loadingIndicator.setVisibility(View.GONE);
 
-        // Set empty state text to display "No articles found. Please check back again."
-        eEmptyStateTextView.setText(R.string.no_articles_found);
+        // Set empty state text to display message.
+        emptyStateTextView.setText(R.string.no_articles_found);
 
         // Clear the adapter of previous data
-        aAdapter.clear();
+        articleAdapter.clear();
 
         // If there is a valid list of Articles, then add to adapter's data set. This will
         // trigger the ListView to update.
         if (articles != null && !articles.isEmpty()) {
-            aAdapter.addAll(articles);
+            articleAdapter.addAll(articles);
         }
     }
 
     @Override
     public void onLoaderReset(Loader<List<Article>> loader) {
-        //Loader reset, so we can clear out our existing data
-        aAdapter.clear();
+        // Reset loader to clear existing data.
+        articleAdapter.clear();
     }
 
 }
