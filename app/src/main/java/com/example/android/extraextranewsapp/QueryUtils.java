@@ -164,10 +164,14 @@ public class QueryUtils {
                 // For a given article, get the value for the key related to author.
                 // Check if the JSONObject has the key "fields."
                 // If so, extract the value for the key called "byline."
-                JSONArray fieldsArray = currentArticle.getJSONArray("fields");
-                JSONObject stringAuthor = fieldsArray.getJSONObject(0);
-                String articleAuthor = stringAuthor.getString("byline");
-                articleAuthor = "By " + articleAuthor;
+                String articleAuthor = " ";
+                if (currentArticle.has("fields")) {
+                    JSONObject fieldsObject = currentArticle.getJSONObject("fields");
+                    if (fieldsObject != null && fieldsObject.has("byline")) {
+                        articleAuthor = fieldsObject.getString("byline");
+                        articleAuthor = "By " + articleAuthor;
+                    }
+                }
 
                 // Create a new Article object with section, title, reformatted date, author.
                 Article article = new Article(sectionName, articleTitle, articleAuthor, articleDate,

@@ -2,7 +2,6 @@ package com.example.android.extraextranewsapp;
 
 import android.content.AsyncTaskLoader;
 import android.content.Context;
-import android.util.Log;
 import java.util.List;
 
 // Loads a list of articles by using an AsyncTask to perform the network request to the given URL

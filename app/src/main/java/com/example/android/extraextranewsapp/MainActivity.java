@@ -24,10 +24,17 @@ public class MainActivity extends AppCompatActivity implements LoaderCallbacks<L
 
     // Constant value for article loader ID.
     public static final int ARTICLE_LOADER_ID = 1;
+
     // URL for article data from the Guardian API.
     private static final String GUARDIAN_REQUEST_URL =
-            "https://content.guardianapis.com/search?api-key=863cbb53-872a-4af3-9897-dadd1eb75a01&" +
-                    "show-tags=article,contributor&show-fields=headline,byline";
+            "https://content.guardianapis.com/search?";
+
+    // Variable for hidden API key.
+    // (Credit: Hiding API keys from your Android Repository on 8/27/2018,
+    // https://medium.com/code-better/hiding-api-keys-from-your-android-repository-b23f5598b906,
+    // which is a article posted to Slack on 8/24/2018 by ABND Scholar Charles Rowland.)
+    private static final String API_KEY = BuildConfig.ApiKey;
+
     // Adapter for the list of articles.
     private ArticleAdapter articleAdapter;
 
@@ -105,7 +112,7 @@ public class MainActivity extends AppCompatActivity implements LoaderCallbacks<L
     @Override
     public Loader<List<Article>> onCreateLoader(int i, Bundle bundle) {
         // Create a new loader for the given URL
-        return new ArticleLoader(this, GUARDIAN_REQUEST_URL);
+        return new ArticleLoader(this, GUARDIAN_REQUEST_URL + API_KEY + "&show-fields=byline");
     }
 
     @Override
