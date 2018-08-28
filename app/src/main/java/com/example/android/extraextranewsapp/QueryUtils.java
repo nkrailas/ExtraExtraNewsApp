@@ -171,6 +171,16 @@ public class QueryUtils {
                         articleAuthor = fieldsObject.getString("byline");
                         articleAuthor = "By " + articleAuthor;
                     }
+                } else if (currentArticle.has("tags")) {
+                    //Check if the JSONArray has the key "tags."
+                    // If so, extract the value for the key called "webTitle."
+                    JSONArray tagsArray = currentArticle.getJSONArray("tags");
+                    if (tagsArray != null && tagsArray.length() > 0) {
+                        JSONObject authorTag = (JSONObject) tagsArray.get(0);
+                        articleAuthor = authorTag.getString("webTitle");
+                        articleAuthor = "By " + articleAuthor;
+                    }
+
                 }
 
                 // Create a new Article object with section, title, reformatted date, author.

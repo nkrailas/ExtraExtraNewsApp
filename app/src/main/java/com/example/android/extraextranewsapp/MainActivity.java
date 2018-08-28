@@ -112,7 +112,8 @@ public class MainActivity extends AppCompatActivity implements LoaderCallbacks<L
     @Override
     public Loader<List<Article>> onCreateLoader(int i, Bundle bundle) {
         // Create a new loader for the given URL
-        return new ArticleLoader(this, GUARDIAN_REQUEST_URL + API_KEY + "&show-fields=byline");
+        return new ArticleLoader(this, GUARDIAN_REQUEST_URL + API_KEY +
+                "&show-tags=contributor&show-fields=byline");
     }
 
     @Override
