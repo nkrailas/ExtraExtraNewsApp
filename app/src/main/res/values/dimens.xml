@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="listview_padding">16dp</dimen>
+    <dimen name="linear_height">90dp</dimen>
+    <dimen name="linear_padding">16dp</dimen>
+    <dimen name="linear_padding_top_bottom">4dp</dimen>
+    <dimen name="text_size">12sp</>
+    <dimen name="text_size_title">14sp</dimen>
+    <dimen name="textview_padding">2dp</dimen>
+    <dimen name="textview_author_start">0dp</dimen>
+    <dimen name="textview_author_end">16dp</dimen>
+</resources>

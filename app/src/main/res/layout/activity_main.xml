@@ -8,10 +8,10 @@
         android:id="@+id/article_list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:divider="#45425c"
+        android:divider="@color/colorDivider"
         android:dividerHeight="1px"
         android:orientation="vertical"
-        android:padding="16dp" />
+        android:padding="@dimen/listview_padding" />
 
     <!-- Empty view is only visible when the list has no items. -->
     <TextView
