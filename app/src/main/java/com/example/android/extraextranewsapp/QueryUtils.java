@@ -162,30 +162,16 @@ public class QueryUtils {
                 String articleDate = reformattedDate(webPubDate);
 
                 // For a given article, get the value for the key related to author.
-                String articleAuthor = "";
                 // Check if the JSONObject has the key "fields."
                 // If so, extract the value for the key called "byline."
-                if (currentArticle.has("fields")) {
-                    JSONObject fieldsObject = currentArticle.getJSONObject("fields");
-                    if (fieldsObject != null && fieldsObject.has("byline")) ;
-                    {
-                        articleAuthor = fieldsObject.getString("byline");
-                    }
-
-                } else if (currentArticle.has("tags")) {
-                    // Check if the JSONArray has the key "tags."
-                    // If so, extract the value for the key called "webTitle."
-                    JSONArray tagsArray = currentArticle.getJSONArray("tags");
-                    if (tagsArray != null && tagsArray.length() > 0) {
-                        JSONObject authorTag = (JSONObject) tagsArray.get(0);
-                        articleAuthor = authorTag.getString("webTitle");
-                    }
-
-                }
+                JSONArray fieldsArray = currentArticle.getJSONArray("fields");
+                JSONObject stringAuthor = fieldsArray.getJSONObject(0);
+                String articleAuthor = stringAuthor.getString("byline");
+                articleAuthor = "By " + articleAuthor;
 
                 // Create a new Article object with section, title, reformatted date, author.
-                Article article = new Article(sectionName, articleTitle, articleDate,
-                        articleUrl, articleAuthor);
+                Article article = new Article(sectionName, articleTitle, articleAuthor, articleDate,
+                        articleUrl);
 
                 // Add the article to the list of articles.
                 articles.add(article);
@@ -213,8 +199,8 @@ public class QueryUtils {
             Log.e("QueryUtils", "Problem parsing the date", e);
         }
 
-        SimpleDateFormat simpleDateFormatResult = new SimpleDateFormat("MM dd yyyy");
-        String reformattedDate = simpleDateFormat.format(date);
+        SimpleDateFormat simpleDateFormatResult = new SimpleDateFormat("MMM dd, yyyy");
+        String reformattedDate = simpleDateFormatResult.format(date);
         return reformattedDate;
     }
 }

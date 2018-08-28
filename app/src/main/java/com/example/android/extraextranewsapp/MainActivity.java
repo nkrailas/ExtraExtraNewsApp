@@ -27,7 +27,7 @@ public class MainActivity extends AppCompatActivity implements LoaderCallbacks<L
     // URL for article data from the Guardian API.
     private static final String GUARDIAN_REQUEST_URL =
             "https://content.guardianapis.com/search?api-key=863cbb53-872a-4af3-9897-dadd1eb75a01&" +
-                    "show-tags=article,contributor&show-fields=headline,byline&limit=15";
+                    "show-tags=article,contributor&show-fields=headline,byline";
     // Adapter for the list of articles.
     private ArticleAdapter articleAdapter;
 
@@ -82,6 +82,9 @@ public class MainActivity extends AppCompatActivity implements LoaderCallbacks<L
         // If there is a network connection, fetch data.
         if (networkInfo != null && networkInfo.isConnected()) {
 
+            View loadingIndicator = findViewById(R.id.loading_indicator);
+            loadingIndicator.setVisibility(View.VISIBLE);
+
             // Get a reference to the LoaderManager, in order to interact with loaders.
             LoaderManager loaderManager = getLoaderManager();
 
@@ -89,6 +92,7 @@ public class MainActivity extends AppCompatActivity implements LoaderCallbacks<L
             // the bundle. Pass in this activity for the LoaderCallbacks parameter.
 
             loaderManager.initLoader(ARTICLE_LOADER_ID, null, this);
+
         } else {
             // Otherwise, hide loading indicator and display error message.
             View loadingIndicator = findViewById(R.id.loading_indicator);
