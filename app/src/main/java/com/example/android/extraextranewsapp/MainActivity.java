@@ -1,11 +1,14 @@
 package com.example.android.extraextranewsapp;
 
+import android.app.Activity;
 import android.app.LoaderManager;
 import android.app.LoaderManager.LoaderCallbacks;
 import android.content.Context;
 import android.content.Intent;
 import android.content.Loader;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -13,6 +16,10 @@ import android.net.Uri;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
@@ -25,7 +32,7 @@ public class MainActivity extends AppCompatActivity implements LoaderCallbacks<L
     // Constant value for article loader ID.
     public static final int ARTICLE_LOADER_ID = 1;
 
-    // URL for article data from the Guardian API.
+    // URL for article data from The Guardian API.
     private static final String GUARDIAN_REQUEST_URL =
             "https://content.guardianapis.com/search?";
 
@@ -111,9 +118,32 @@ public class MainActivity extends AppCompatActivity implements LoaderCallbacks<L
 
     @Override
     public Loader<List<Article>> onCreateLoader(int i, Bundle bundle) {
+
         // Create a new loader for the given URL
-        return new ArticleLoader(this, GUARDIAN_REQUEST_URL + API_KEY +
-                "&show-tags=contributor&show-fields=byline");
+        SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
+
+        // getString retrieves a String value from the preferences. Second parameter is the default.
+        String section = sharedPrefs.getString(
+                getString(R.string.settings_section_key),
+                getString(R.string.settings_section_default));
+
+        // .parse breaks apart the URI string that's passed into its parameter.
+        Uri baseUri = Uri.parse(GUARDIAN_REQUEST_URL);
+
+        // .buildUpon prepares the baseUri that we just parsed so we can add query parameters to it.
+        Uri.Builder uriBuilder = baseUri.buildUpon();
+
+        // Append query parameter and its value. For example, 'section=business'.
+        uriBuilder.appendQueryParameter("api-key", API_KEY);
+        uriBuilder.appendQueryParameter("sectionName", section);
+        uriBuilder.appendQueryParameter("show-fields", "byline");
+        uriBuilder.appendQueryParameter("show-tags", "contributor");
+
+        Log.i("main activity", "onCreateLoader: " + uriBuilder.toString());
+
+        // Return the completed uri.
+        return new ArticleLoader(this, uriBuilder.toString());
+
     }
 
     @Override
@@ -141,7 +171,26 @@ public class MainActivity extends AppCompatActivity implements LoaderCallbacks<L
         articleAdapter.clear();
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.main, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        if (id == R.id.action_settings) {
+            Intent settingsIntent = new Intent(this, SettingsActivity.class);
+            startActivity(settingsIntent);
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
 }
+
+
 
 
 

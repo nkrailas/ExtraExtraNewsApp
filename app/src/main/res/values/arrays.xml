@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<resources>
+
+    <!-- Contains labels for the user to read. -->
+    <string-array name="settings_section_labels">
+        <item>Sport</item>
+        <item>Business</item>
+        <item>Film</item>
+    </string-array>
+
+    <!-- Contains values to save for a preference when an entry from entries is selected. -->
+    <string-array name="settings_section_values">
+        <item>Sport</item>
+        <item>Business</item>
+        <item>Film</item>
+    </string-array>
+</resources>
