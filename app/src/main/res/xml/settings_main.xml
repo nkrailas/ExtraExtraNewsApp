@@ -4,11 +4,10 @@
     android:title="@string/settings_title">
 
     <ListPreference
-        android:defaultValue="@string/settings_section_default"
-        android:entries="@array/settings_section_labels"
-        android:entryValues="@array/settings_section_values"
-        android:key="@string/settings_section_key"
-        android:summary="@string/settings_section_label"
-        android:title="@string/settings_section_label" />
+        android:defaultValue="@string/settings_topic_default"
+        android:entries="@array/settings_topic_labels"
+        android:entryValues="@array/settings_topic_values"
+        android:key="@string/settings_topic_key"
+        android:title="@string/settings_topic_label" />
 
 </PreferenceScreen>

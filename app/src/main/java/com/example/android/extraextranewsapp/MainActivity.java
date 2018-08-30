@@ -123,9 +123,9 @@ public class MainActivity extends AppCompatActivity implements LoaderCallbacks<L
         SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
 
         // getString retrieves a String value from the preferences. Second parameter is the default.
-        String section = sharedPrefs.getString(
-                getString(R.string.settings_section_key),
-                getString(R.string.settings_section_default));
+        String topic = sharedPrefs.getString(
+                getString(R.string.settings_topic_key),
+                getString(R.string.settings_topic_default));
 
         // .parse breaks apart the URI string that's passed into its parameter.
         Uri baseUri = Uri.parse(GUARDIAN_REQUEST_URL);
@@ -133,9 +133,11 @@ public class MainActivity extends AppCompatActivity implements LoaderCallbacks<L
         // .buildUpon prepares the baseUri that we just parsed so we can add query parameters to it.
         Uri.Builder uriBuilder = baseUri.buildUpon();
 
-        // Append query parameter and its value. For example, 'section=business'.
+        // Append query parameter and its value. For example, 'topic=Art'.
+        // Credit: ABND P7 Walkthrough w/Jaime Ramirez (which was shared by ABND Scholar Matthew Bailey)
+        // on 8/30/2018, https://www.youtube.com/watch?v=8aQngnB0pOE, and Jaime's help via Slack.
         uriBuilder.appendQueryParameter("api-key", API_KEY);
-        uriBuilder.appendQueryParameter("sectionName", section);
+        uriBuilder.appendQueryParameter("q", topic);
         uriBuilder.appendQueryParameter("show-fields", "byline");
         uriBuilder.appendQueryParameter("show-tags", "contributor");
 

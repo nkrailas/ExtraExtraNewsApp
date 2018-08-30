@@ -1,7 +1,5 @@
 package com.example.android.extraextranewsapp;
 
-import android.content.Intent;
-
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.ListPreference;
@@ -26,8 +24,8 @@ public class SettingsActivity extends AppCompatActivity {
             super.onCreate(savedInstanceState);
             addPreferencesFromResource(R.xml.settings_main);
 
-            Preference section = findPreference(getString(R.string.settings_section_key));
-            bindPreferenceSummaryToValue(section);
+            Preference selectTopic = findPreference(getString(R.string.settings_topic_key));
+            bindPreferenceSummaryToValue(selectTopic);
 
         }
 
