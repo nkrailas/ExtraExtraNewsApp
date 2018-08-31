@@ -127,6 +127,10 @@ public class MainActivity extends AppCompatActivity implements LoaderCallbacks<L
                 getString(R.string.settings_topic_key),
                 getString(R.string.settings_topic_default));
 
+        String orderBy = sharedPrefs.getString(
+                getString(R.string.settings_order_by_key),
+                getString(R.string.settings_order_by_default));
+
         // .parse breaks apart the URI string that's passed into its parameter.
         Uri baseUri = Uri.parse(GUARDIAN_REQUEST_URL);
 
@@ -138,6 +142,7 @@ public class MainActivity extends AppCompatActivity implements LoaderCallbacks<L
         // on 8/30/2018, https://www.youtube.com/watch?v=8aQngnB0pOE, and Jaime's help via Slack.
         uriBuilder.appendQueryParameter("api-key", API_KEY);
         uriBuilder.appendQueryParameter("q", topic);
+        uriBuilder.appendQueryParameter("order-by", orderBy);
         uriBuilder.appendQueryParameter("show-fields", "byline");
         uriBuilder.appendQueryParameter("show-tags", "contributor");
 

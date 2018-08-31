@@ -9,10 +9,21 @@
         <item>Politics</item>
     </string-array>
 
+    <string-array name="settings_order_by_labels">
+        <item>Newest</item>
+        <item>Oldest</item>
+    </string-array>
+
     <!-- Contains values to save for a preference when an entry from entries is selected. -->
     <string-array name="settings_topic_values">
         <item>Film</item>
         <item>Music</item>
         <item>Politics</item>
     </string-array>
+
+    <string-array name="settings_order_by_values">
+        <item>Newest</item>
+        <item>Oldest</item>
+    </string-array>
+
 </resources>

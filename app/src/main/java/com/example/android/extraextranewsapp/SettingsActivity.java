@@ -27,6 +27,9 @@ public class SettingsActivity extends AppCompatActivity {
             Preference selectTopic = findPreference(getString(R.string.settings_topic_key));
             bindPreferenceSummaryToValue(selectTopic);
 
+            Preference orderBy = findPreference(getString(R.string.settings_order_by_key));
+            bindPreferenceSummaryToValue(orderBy);
+
         }
 
         @Override

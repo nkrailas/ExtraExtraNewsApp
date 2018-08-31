@@ -15,5 +15,10 @@
     <string name="settings_topic_key" translatable="false">topic</string>
     <string name="settings_topic_default" translatable="false">Film</string>
 
+    <!-- Strings for Order By Preference [CHAR LIMIT=30] -->
+    <string name="settings_order_by_label">Order By</string>
+    <string name="settings_order_by_key" translatable="false">orderBy</string>
+    <string name="settings_order_by_default" translatable="false">Newest</string>
+
 
 </resources>
